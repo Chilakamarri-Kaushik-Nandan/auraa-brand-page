@@ -122,8 +122,14 @@ function App() {
       </div>
 
       <p style={{ textAlign: 'center', padding: '25px', color: '#666', fontSize: '12px', letterSpacing: '2px', fontFamily: 'Inter, sans-serif' }}>© 2026 AURAA BEAUTY • LUXURY MADE IN HYDERABAD</p>
+         {/* FLOATING WHATSAPP BUTTON - ALWAYS VISIBLE */}
+      <button onClick={() => orderOnWhatsApp('Hi AURAA! I want to shop', '')} style={{ position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px', borderRadius: '50%', background: '#25D366', border: 'none', fontSize: '30px', cursor: 'pointer', boxShadow: '0 10px 25px rgba(37,211,102,0.5)', zIndex: 999 }}>
+        💬
+      </button>
     </div>
+     
   )
+      
 }
 
 export default App
