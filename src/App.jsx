@@ -4,10 +4,13 @@ function App() {
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
 
-  const products = [
+   const products = [
     { name: 'Auraa Glow Serum', price: '₹899', tag: 'BESTSELLER', emoji: '✨' },
     { name: 'Auraa Matte Lipstick', price: '₹499', tag: 'NEW', emoji: '💄' },
     { name: 'Auraa Hydra Cream', price: '₹699', tag: 'TRENDING', emoji: '🧴' },
+    { name: 'Auraa Vitamin C Face Wash', price: '₹349', tag: 'NEW', emoji: '🧼' },
+    { name: 'Auraa SPF 50 Sunscreen', price: '₹599', tag: 'MUST HAVE', emoji: '☀️' },
+    { name: 'Auraa Kajal - Jet Black', price: '₹299', tag: 'BESTSELLER', emoji: '👁️' },
   ]
 
   const orderOnWhatsApp = (productName, price) => {
