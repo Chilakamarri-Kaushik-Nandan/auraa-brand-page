@@ -40,6 +40,37 @@ function App() {
         <p style={{ marginTop: '20px', fontSize: '14px', color: '#888' }}>⭐ 4.9 | 12,000+ Happy Customers | Free Delivery over ₹999</p>
       </div>
 
+            {/* REVIEWS SECTION */}
+      <div style={{ width: '100%', maxWidth: '1400px', margin: '40px auto', padding: '20px 40px', boxSizing: 'border-box' }}>
+        <h2 style={{ textAlign: 'center', fontSize: '32px' }}>What Our Customers Say ❤️</h2>
+        <p style={{ textAlign: 'center', color: '#888' }}>Real reviews from real glow-getters</p>
+        
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px' }}>
+          
+          <div style={{ background: 'white', width: '320px', flex: '1 1 300px', maxWidth: '380px', padding: '24px', borderRadius: '20px', boxShadow: '0 5px 20px rgba(0,0,0,0.06)' }}>
+            <p style={{ color: '#ff9900', fontSize: '18px', margin: '0' }}>⭐⭐⭐⭐⭐</p>
+            <p style={{ lineHeight: '1.6', margin: '12px 0' }}>"Glow Serum is magic! 1 week lo ne naa face chaala bright ayindhi. Ippudu makeup kuda veyatledu."</p>
+            <p style={{ fontWeight: 'bold', margin: '0' }}>Priya Sharma</p>
+            <p style={{ color: '#888', fontSize: '13px', margin: '2px 0 0' }}>Hyderabad • Verified Buyer</p>
+          </div>
+
+          <div style={{ background: 'white', width: '320px', flex: '1 1 300px', maxWidth: '380px', padding: '24px', borderRadius: '20px', boxShadow: '0 5px 20px rgba(0,0,0,0.06)' }}>
+            <p style={{ color: '#ff9900', fontSize: '18px', margin: '0' }}>⭐⭐⭐⭐⭐</p>
+            <p style={{ lineHeight: '1.6', margin: '12px 0' }}>"Lipstick color super undhi, full day untadhi. WhatsApp lo order petta, next day ne vachesindhi!"</p>
+            <p style={{ fontWeight: 'bold', margin: '0' }}>Sneha Reddy</p>
+            <p style={{ color: '#888', fontSize: '13px', margin: '2px 0 0' }}>Warangal • Verified Buyer</p>
+          </div>
+
+          <div style={{ background: 'white', width: '320px', flex: '1 1 300px', maxWidth: '380px', padding: '24px', borderRadius: '20px', boxShadow: '0 5px 20px rgba(0,0,0,0.06)' }}>
+            <p style={{ color: '#ff9900', fontSize: '18px', margin: '0' }}>⭐⭐⭐⭐⭐</p>
+            <p style={{ lineHeight: '1.6', margin: '12px 0' }}>"Hydra Cream naa dry skin ki best. Naa friends andariki AURAA ne suggest chesthunna."</p>
+            <p style={{ fontWeight: 'bold', margin: '0' }}>Anitha K.</p>
+            <p style={{ color: '#888', fontSize: '13px', margin: '2px 0 0' }}>Karimnagar • Verified Buyer</p>
+          </div>
+
+        </div>
+      </div>
+
       <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '20px 40px', boxSizing: 'border-box' }}>
         <h2 style={{ textAlign: 'center', fontSize: '32px' }}>Bestsellers</h2>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '20px' }}>
