@@ -1,30 +1,82 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function App() {
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('auraa-cart')
+    return saved ? JSON.parse(saved) : []
+  })
+  const [isCartOpen, setIsCartOpen] = useState(false)
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('auraa-cart', JSON.stringify(cart))
+  }, [cart])
 
   const products = [
-    { name: 'Auraa Glow Serum', price: '₹899', tag: 'BESTSELLER', emoji: '✨', desc: '24K Gold + Vitamin C', size: '30ml', skin: 'All Skin Types', ing: 'Vitamin C • 24K Gold • Hyaluronic Acid' },
-    { name: 'Auraa Matte Lipstick', price: '₹499', tag: 'NEW', emoji: '💄', desc: 'Velvet Matte • 12H Stay', size: '4.2g', skin: 'All Skin Types', ing: 'Shea Butter • Vitamin E • Matte Pigments' },
-    { name: 'Auraa Hydra Cream', price: '₹699', tag: 'TRENDING', emoji: '🧴', desc: 'Hyaluronic + Shea Butter', size: '50g', skin: 'Dry to Normal Skin', ing: 'Hyaluronic Acid • Shea Butter • Aloe Vera' },
-    { name: 'Auraa Vitamin C Face Wash', price: '₹349', tag: 'NEW', emoji: '🧼', desc: 'Brightening • Daily Glow', size: '100ml', skin: 'Oily to Normal Skin', ing: 'Vitamin C • Aloe • Niacinamide' },
-    { name: 'Auraa SPF 50 Sunscreen', price: '₹599', tag: 'MUST HAVE', emoji: '☀️', desc: 'No White Cast • Matte', size: '50ml', skin: 'All Skin Types', ing: 'SPF 50 PA+++ • Zinc • Vitamin E' },
-    { name: 'Auraa Kajal - Jet Black', price: '₹299', tag: 'BESTSELLER', emoji: '👁️', desc: 'Smudge Proof • 24H', size: '0.35g', skin: 'Sensitive Eyes Safe', ing: 'Castor Oil • Almond Oil • Black Pigment' },
+    { id: 1, name: 'Auraa Glow Serum', price: 899, tag: 'BESTSELLER', emoji: '✨', desc: '24K Gold + Vitamin C', size: '30ml', skin: 'All Skin Types', ing: 'Vitamin C • 24K Gold • Hyaluronic Acid' },
+    { id: 2, name: 'Auraa Matte Lipstick', price: 499, tag: 'NEW', emoji: '💄', desc: 'Velvet Matte • 12H Stay', size: '4.2g', skin: 'All Skin Types', ing: 'Shea Butter • Vitamin E • Matte Pigments' },
+    { id: 3, name: 'Auraa Hydra Cream', price: 699, tag: 'TRENDING', emoji: '🧴', desc: 'Hyaluronic + Shea Butter', size: '50g', skin: 'Dry to Normal Skin', ing: 'Hyaluronic Acid • Shea Butter • Aloe Vera' },
+    { id: 4, name: 'Auraa Vitamin C Face Wash', price: 349, tag: 'NEW', emoji: '🧼', desc: 'Brightening • Daily Glow', size: '100ml', skin: 'Oily to Normal Skin', ing: 'Vitamin C • Aloe • Niacinamide' },
+    { id: 5, name: 'Auraa SPF 50 Sunscreen', price: 599, tag: 'MUST HAVE', emoji: '☀️', desc: 'No White Cast • Matte', size: '50ml', skin: 'All Skin Types', ing: 'SPF 50 PA+++ • Zinc • Vitamin E' },
+    { id: 6, name: 'Auraa Kajal - Jet Black', price: 299, tag: 'BESTSELLER', emoji: '👁️', desc: 'Smudge Proof • 24H', size: '0.35g', skin: 'Sensitive Eyes Safe', ing: 'Castor Oil • Almond Oil • Black Pigment' },
   ]
 
-  const orderOnWhatsApp = (productName, price) => {
-    const phone = "919391326457";
-    const msg = `Hi AURAA! I want to order ${productName} - ${price}. Is it available?`;
-    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
-  };
+  // --- CART LOGIC - This is your main frontend work ---
+  const addToCart = (product) => {
+    setCart(prev => {
+      const found = prev.find(item => item.id === product.id)
+      if (found) {
+        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item)
+      }
+      return [...prev, { ...product, qty: 1 }]
+    })
+    setIsCartOpen(true) // Open cart when added
+  }
+
+  const updateQty = (id, change) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === id) {
+        const newQty = item.qty + change
+        if (newQty <= 0) return null
+        return { ...item, qty: newQty }
+      }
+      return item
+    }).filter(Boolean))
+  }
+
+  const removeItem = (id) => {
+    setCart(prev => prev.filter(item => item.id !== id))
+  }
+
+  const totalItems = cart.reduce((sum, item) => sum + item.qty, 0)
+  const subtotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
+  const delivery = subtotal >= 799 || subtotal === 0 ? 0 : 49
+  const total = subtotal + delivery
+
+  const checkoutOnWhatsApp = () => {
+    const phone = "919391326457"
+    let msg = `Hi AURAA! I want to order:\n\n`
+    cart.forEach(item => {
+      msg += `• ${item.name} x ${item.qty} - ₹${item.price * item.qty}\n`
+    })
+    msg += `\nSubtotal: ₹${subtotal}\nDelivery: ${delivery === 0 ? 'FREE' : '₹' + delivery}\nTotal: ₹${total}\n\nPlease confirm my order.`
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
+  const orderSingleOnWhatsApp = (product) => {
+    const phone = "919391326457"
+    const msg = `Hi AURAA! I want to order ${product.name} - ₹${product.price}. Is it available?`
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
 
   const joinCircle = () => {
-    if(!email) return;
-    setDone(true);
-    const msg = `Hi AURAA! I joined Golden Circle with email ${email}. Please send my 20% welcome code.`;
-    window.open(`https://wa.me/919391326457?text=${encodeURIComponent(msg)}`, '_blank');
-  };
+    if(!email) return
+    setDone(true)
+    const msg = `Hi AURAA! I joined Golden Circle with email ${email}. Please send my 20% welcome code.`
+    window.open(`https://wa.me/919391326457?text=${encodeURIComponent(msg)}`, '_blank')
+  }
 
   return (
     <div style={{ fontFamily: "'Playfair Display', Georgia, serif", margin: 0, background: '#0a0a0a', color: '#f5f5f5', minHeight: '100vh', width: '100%', overflowX: 'hidden', position: 'relative' }}>
@@ -35,6 +87,7 @@ function App() {
         @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
         .luxury-text { background: linear-gradient(90deg, #d4af37, #fff8dc, #d4af37, #b8860b, #d4af37); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 4s linear infinite; }
         .orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35; pointer-events: none; animation: floatOrb 8s ease-in-out infinite; }
         .product-card { animation: floatCard 4s ease-in-out infinite; transition: all 0.4s ease; }
@@ -43,13 +96,14 @@ function App() {
         .gold-btn:hover { transform: scale(1.05); box-shadow: 0 10px 30px rgba(212,175,55,0.5); }
         .fade-up { animation: fadeUp 0.8s ease forwards; }
         html { scroll-behavior: smooth; }
+        .cart-drawer { animation: slideIn 0.3s ease; }
       `}</style>
 
       <div className="orb" style={{ width: '500px', height: '500px', background: '#d4af37', top: '-100px', left: '-100px' }}></div>
       <div className="orb" style={{ width: '400px', height: '400px', background: '#8b008b', top: '400px', right: '-100px', animationDelay: '2s' }}></div>
       <div className="orb" style={{ width: '300px', height: '300px', background: '#ff6b00', bottom: '200px', left: '30%', animationDelay: '4s' }}></div>
 
-      {/* HEADER - NAV NOW WORKS */}
+      {/* HEADER WITH CART */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 40px', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(15px)', position: 'sticky', top: 0, borderBottom: '1px solid rgba(212,175,55,0.3)', width: '100%', boxSizing: 'border-box', zIndex: 100 }}>
         <h2 className="luxury-text" style={{ margin: 0, letterSpacing: '8px', fontSize: '28px', fontWeight: '900' }}>AURAA</h2>
         <div style={{ display: 'flex', gap: '25px', fontSize: '13px', letterSpacing: '2px', fontFamily: 'Inter, sans-serif' }}>
@@ -57,10 +111,15 @@ function App() {
           <a href="#collection" style={{ color: '#ccc', textDecoration: 'none' }}>COLLECTION</a>
           <a href="#reviews" style={{ color: '#ccc', textDecoration: 'none' }}>REVIEWS</a>
         </div>
-        <button onClick={() => orderOnWhatsApp('AURAA Products', '')} className="gold-btn" style={{ background: 'linear-gradient(90deg, #d4af37, #f5d76e)', color: '#000', border: 'none', padding: '11px 22px', borderRadius: '30px', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Inter, sans-serif' }}>Shop Now →</button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button onClick={() => setIsCartOpen(true)} style={{ background: '#fff', color: '#000', border: 'none', padding: '11px 18px', borderRadius: '30px', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Inter, sans-serif', position: 'relative' }}>
+            🛒 Cart ({totalItems}) {totalItems > 0 && `• ₹${subtotal}`}
+          </button>
+          <button onClick={() => orderSingleOnWhatsApp({ name: 'AURAA Products', price: '' })} className="gold-btn" style={{ background: 'linear-gradient(90deg, #d4af37, #f5d76e)', color: '#000', border: 'none', padding: '11px 22px', borderRadius: '30px', cursor: 'pointer', fontWeight: 'bold', fontFamily: 'Inter, sans-serif' }}>Shop Now →</button>
+        </div>
       </div>
 
-      {/* MARQUEE - FIXED ₹799 */}
+      {/* MARQUEE */}
       <div style={{ overflow: 'hidden', whiteSpace: 'nowrap', borderBottom: '1px solid rgba(212,175,55,0.2)', padding: '10px 0', background: 'rgba(212,175,55,0.05)' }}>
         <div style={{ display: 'inline-block', animation: 'marquee 20s linear infinite', fontFamily: 'Inter, sans-serif', fontSize: '12px', letterSpacing: '3px', color: '#d4af37' }}>
           <span>✦ FREE DELIVERY OVER ₹799 &nbsp;&nbsp;&nbsp; ✦ NO PARABENS • NO SULPHATES &nbsp;&nbsp;&nbsp; ✦ MADE FOR INDIAN SKIN &nbsp;&nbsp;&nbsp; ✦ CASH ON DELIVERY AVAILABLE &nbsp;&nbsp;&nbsp; ✦ FREE DELIVERY OVER ₹799 &nbsp;&nbsp;&nbsp; ✦ NO PARABENS • NO SULPHATES &nbsp;&nbsp;&nbsp; ✦ MADE FOR INDIAN SKIN &nbsp;&nbsp;&nbsp; ✦ CASH ON DELIVERY AVAILABLE &nbsp;&nbsp;&nbsp;</span>
@@ -73,8 +132,8 @@ function App() {
         <h1 className="luxury-text" style={{ fontSize: '78px', lineHeight: '1.05', margin: '25px 0 15px', fontWeight: '900' }}>Glow Like You<br />Mean It.</h1>
         <p style={{ color: '#ccc', maxWidth: '600px', margin: '0 auto 30px', lineHeight: '1.7', fontSize: '17px', fontFamily: 'Inter, sans-serif' }}>Where luxury meets Indian skin. 24K gold-infused, dermatologist approved, cruelty-free beauty. No filters needed, just AURAA.</p>
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button onClick={() => orderOnWhatsApp('Bestsellers', '')} className="gold-btn" style={{ background: 'linear-gradient(90deg, #d4af37, #f5d76e)', color: '#000', border: 'none', padding: '16px 32px', borderRadius: '30px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Shop Bestsellers →</button>
-          <button onClick={() => orderOnWhatsApp('AURAA Story', '')} style={{ background: 'transparent', border: '1px solid #d4af37', color: '#d4af37', padding: '16px 32px', borderRadius: '30px', fontSize: '15px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Chat on WhatsApp</button>
+          <button onClick={() => document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })} className="gold-btn" style={{ background: 'linear-gradient(90deg, #d4af37, #f5d76e)', color: '#000', border: 'none', padding: '16px 32px', borderRadius: '30px', fontSize: '15px', fontWeight: 'bold', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>Shop Bestsellers →</button>
+          <button onClick={() => setIsCartOpen(true)} style={{ background: 'transparent', border: '1px solid #d4af37', color: '#d4af37', padding: '16px 32px', borderRadius: '30px', fontSize: '15px', cursor: 'pointer', fontFamily: 'Inter, sans-serif' }}>View Cart ({totalItems})</button>
         </div>
         <p style={{ marginTop: '25px', fontSize: '14px', color: '#ccc', fontFamily: 'Inter, sans-serif' }}>⭐⭐⭐⭐⭐ Loved by our early customers | Small-batch • Made in Hyderabad</p>
       </div>
@@ -85,29 +144,23 @@ function App() {
         <p style={{ textAlign: 'center', color: '#ccc', fontFamily: 'Inter, sans-serif', fontSize: '14px' }}>Handcrafted luxury for every skin type • Free delivery over ₹799</p>
         <div style={{ display: 'flex', gap: '22px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '30px' }}>
           {products.map((p, i) => (
-            <div key={p.name} className="product-card" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', border: '1px solid rgba(212,175,55,0.25)', width: '320px', flex: '1 1 300px', maxWidth: '380px', padding: '28px', borderRadius: '24px', textAlign: 'center', animationDelay: `${i * 0.3}s` }}>
+            <div key={p.id} className="product-card" style={{ background: 'rgba(255,255,255,0.06)', backdropFilter: 'blur(10px)', border: '1px solid rgba(212,175,55,0.25)', width: '320px', flex: '1 1 300px', maxWidth: '380px', padding: '28px', borderRadius: '24px', textAlign: 'center', animationDelay: `${i * 0.3}s` }}>
               <div style={{ fontSize: '55px' }}>{p.emoji}</div>
               <span style={{ fontSize: '10px', background: '#d4af37', color: '#000', padding: '5px 12px', borderRadius: '20px', fontWeight: 'bold', letterSpacing: '1px', fontFamily: 'Inter, sans-serif' }}>{p.tag}</span>
               <h3 style={{ margin: '14px 0 5px', fontSize: '22px' }}>{p.name}</h3>
               <p style={{ color: '#ccc', fontSize: '13px', margin: '0 0 10px', fontFamily: 'Inter, sans-serif' }}>{p.desc}</p>
-              <p style={{ color: '#d4af37', fontSize: '12px', margin: '8px 0', fontFamily: 'Inter, sans-serif', lineHeight: '1.6' }}>
-                Size: {p.size} • {p.skin}<br/>
-                {p.ing}
-              </p>
-              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4af37', margin: '8px 0', fontFamily: 'Inter, sans-serif' }}>{p.price}</p>
-              <button onClick={() => orderOnWhatsApp(p.name, p.price)} className="gold-btn" style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '13px', borderRadius: '12px', cursor: 'pointer', marginTop: '10px', fontWeight: 'bold', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>Order on WhatsApp 📲</button>
+              <p style={{ color: '#d4af37', fontSize: '12px', margin: '8px 0', fontFamily: 'Inter, sans-serif', lineHeight: '1.6' }}>Size: {p.size} • {p.skin}<br/>{p.ing}</p>
+              <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#d4af37', margin: '8px 0', fontFamily: 'Inter, sans-serif' }}>₹{p.price}</p>
+              <button onClick={() => addToCart(p)} className="gold-btn" style={{ width: '100%', background: '#fff', color: '#000', border: 'none', padding: '13px', borderRadius: '12px', cursor: 'pointer', marginTop: '10px', fontWeight: 'bold', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>Add to Cart 🛒</button>
+              <button onClick={() => orderSingleOnWhatsApp(p)} style={{ width: '100%', background: '#25D366', color: 'white', border: 'none', padding: '13px', borderRadius: '12px', cursor: 'pointer', marginTop: '8px', fontWeight: 'bold', fontSize: '15px', fontFamily: 'Inter, sans-serif' }}>Buy Now on WhatsApp 📲</button>
             </div>
           ))}
         </div>
-        <p style={{ textAlign: 'center', color: '#ccc', fontFamily: 'Inter, sans-serif', fontSize: '13px', marginTop: '30px' }}>
-          💡 <b>Bundle Offer:</b> Glow Serum (₹899) + Kajal (₹299) = ₹1,198 • You get FREE delivery + save on shipping!
-        </p>
       </div>
 
-      {/* REVIEWS - HONEST LABEL */}
+      {/* REVIEWS */}
       <div id="reviews" style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '20px 40px', boxSizing: 'border-box', position: 'relative', zIndex: 1 }}>
         <h2 style={{ textAlign: 'center', fontSize: '34px' }}>Loved By <span className="luxury-text">Our Early Customers</span></h2>
-        <p style={{ textAlign: 'center', color: '#ccc', fontFamily: 'Inter, sans-serif', fontSize: '13px' }}>Real feedback from our first orders in Hyderabad & Telangana</p>
         <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '25px' }}>
           {[
             { name: 'Priya Sharma', city: 'Hyderabad', text: '"Glow Serum is pure luxury! My skin has never looked this radiant. Worth every rupee."' },
@@ -124,7 +177,7 @@ function App() {
         </div>
       </div>
 
-      {/* OFFER - NOW ACTUALLY WORKS VIA WHATSAPP */}
+      {/* OFFER */}
       <div style={{ width: '100%', maxWidth: '1100px', margin: '60px auto', background: 'linear-gradient(135deg, #1a1a1a, #2a1a00)', border: '1px solid rgba(212,175,55,0.4)', color: 'white', padding: '45px 30px', borderRadius: '24px', textAlign: 'center', boxSizing: 'border-box', position: 'relative', zIndex: 1 }}>
         <h2 className="luxury-text" style={{ fontSize: '32px', margin: '0' }}>Join The Golden Circle</h2>
         <p style={{ color: '#ccc', fontFamily: 'Inter, sans-serif' }}>Get 20% Off + Early Access to New Launches</p>
@@ -138,18 +191,68 @@ function App() {
         )}
       </div>
 
-      {/* FOOTER - TRUST */}
+      {/* FOOTER */}
       <div style={{ textAlign: 'center', padding: '30px 20px 25px', fontFamily: 'Inter, sans-serif', borderTop: '1px solid rgba(212,175,55,0.2)' }}>
         <p style={{ color: '#ccc', fontSize: '13px', lineHeight: '1.8', margin: '0' }}>
           <b>Shipping:</b> Dispatched in 24-48 hrs • Delivery in 3-5 days • Free over ₹799 | <b>Returns:</b> 7-day return on unopened products<br/>
-          <b>Contact:</b> Hyderabad, Telangana • WhatsApp us for support • No parabens, no sulphates. Not tested on animals.<br/>
-          <a href="https://wa.me/919391326457?text=Hi%20AURAA!%20I%20want%20to%20know%20your%20Privacy%20Policy" style={{ color: '#d4af37', textDecoration: 'none' }}>Privacy Policy</a> • <a href="https://wa.me/919391326457?text=Hi%20AURAA!%20I%20want%20to%20know%20your%20Returns%20Policy" style={{ color: '#d4af37', textDecoration: 'none' }}>Returns & Refund</a> • <a href="https://wa.me/919391326457?text=Hi%20AURAA!%20Shipping%20Details" style={{ color: '#d4af37', textDecoration: 'none' }}>Shipping</a>
+          <b>Contact:</b> Hyderabad, Telangana • WhatsApp us for support
         </p>
         <p style={{ color: '#aaa', fontSize: '12px', letterSpacing: '2px', marginTop: '15px' }}>© 2026 AURAA BEAUTY • LUXURY MADE IN HYDERABAD</p>
       </div>
 
-      <button onClick={() => orderOnWhatsApp('Hi AURAA! I want to shop', '')} style={{ position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px', borderRadius: '50%', background: '#25D366', border: 'none', fontSize: '30px', cursor: 'pointer', boxShadow: '0 10px 25px rgba(37,211,102,0.5)', zIndex: 999 }}>
-        💬
+      {/* CART DRAWER - Slides from right */}
+      {isCartOpen && (
+        <>
+          <div onClick={() => setIsCartOpen(false)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000 }}></div>
+          <div className="cart-drawer" style={{ position: 'fixed', top: 0, right: 0, width: '380px', maxWidth: '90vw', height: '100vh', background: '#111', borderLeft: '1px solid #d4af37', zIndex: 1001, padding: '25px', boxSizing: 'border-box', overflowY: 'auto', fontFamily: 'Inter, sans-serif' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: '22px' }}>Your Cart 🛒</h3>
+              <button onClick={() => setIsCartOpen(false)} style={{ background: 'transparent', border: '1px solid #555', color: '#fff', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            {cart.length === 0 ? (
+              <div style={{ textAlign: 'center', marginTop: '60px', color: '#ccc' }}>
+                <p style={{ fontSize: '50px' }}>🛒</p>
+                <p>Your cart is empty</p>
+                <button onClick={() => { setIsCartOpen(false); document.getElementById('shop').scrollIntoView({ behavior: 'smooth' }) }} style={{ background: '#d4af37', border: 'none', padding: '12px 24px', borderRadius: '20px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }}>Shop Now</button>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {cart.map(item => (
+                    <div key={item.id} style={{ display: 'flex', gap: '12px', background: 'rgba(255,255,255,0.06)', padding: '12px', borderRadius: '12px', alignItems: 'center' }}>
+                      <div style={{ fontSize: '32px' }}>{item.emoji}</div>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{item.name}</p>
+                        <p style={{ margin: '4px 0', color: '#d4af37', fontSize: '14px' }}>₹{item.price} x {item.qty} = ₹{item.price * item.qty}</p>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                          <button onClick={() => updateQty(item.id, -1)} style={{ background: '#333', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '6px', cursor: 'pointer' }}>-</button>
+                          <span>{item.qty}</span>
+                          <button onClick={() => updateQty(item.id, 1)} style={{ background: '#333', color: '#fff', border: 'none', width: '28px', height: '28px', borderRadius: '6px', cursor: 'pointer' }}>+</button>
+                          <button onClick={() => removeItem(item.id)} style={{ background: 'transparent', border: 'none', color: '#ff6b6b', cursor: 'pointer', marginLeft: '10px', fontSize: '12px' }}>Remove</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '25px', borderTop: '1px solid #333', paddingTop: '15px', fontSize: '14px', lineHeight: '2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₹{subtotal}</span></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Delivery</span><span>{delivery === 0 ? 'FREE 🎉' : `₹${delivery}`}</span></div>
+                  {subtotal > 0 && subtotal < 799 && <p style={{ color: '#d4af37', fontSize: '12px', margin: '5px 0' }}>Add ₹{799 - subtotal} more for FREE delivery!</p>}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '16px', marginTop: '8px' }}><span>Total</span><span>₹{total}</span></div>
+                </div>
+
+                <button onClick={checkoutOnWhatsApp} style={{ width: '100%', background: '#25D366', color: '#fff', border: 'none', padding: '16px', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', marginTop: '20px' }}>Checkout on WhatsApp 📲</button>
+                <p style={{ textAlign: 'center', color: '#aaa', fontSize: '12px', marginTop: '10px' }}>COD Available • Pay on delivery</p>
+              </>
+            )}
+          </div>
+        </>
+      )}
+
+      <button onClick={() => setIsCartOpen(true)} style={{ position: 'fixed', bottom: '20px', right: '20px', width: '60px', height: '60px', borderRadius: '50%', background: '#25D366', border: 'none', fontSize: '28px', cursor: 'pointer', boxShadow: '0 10px 25px rgba(37,211,102,0.5)', zIndex: 999 }}>
+        🛒{totalItems > 0 && <span style={{ position: 'absolute', top: '-5px', right: '-5px', background: '#d4af37', color: '#000', fontSize: '12px', fontWeight: 'bold', width: '22px', height: '22px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{totalItems}</span>}
       </button>
     </div>
   )
