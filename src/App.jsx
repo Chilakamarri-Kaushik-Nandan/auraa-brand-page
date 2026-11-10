@@ -16,14 +16,76 @@ function App() {
     localStorage.setItem('auraa-cart', JSON.stringify(cart))
   }, [cart])
 
- const products = [
-  { id: 1, name: 'Auraa Glow Serum', price: 899, tag: 'BESTSELLER', image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=600&q=80', desc: '24K Gold + Vitamin C', size: '30ml', skin: 'All Skin Types', ing: 'Vitamin C • 24K Gold • Hyaluronic Acid' },
-  { id: 2, name: 'Auraa Matte Lipstick', price: 499, tag: 'NEW', image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=600&q=80', desc: 'Velvet Matte • 12H Stay', size: '4.2g', skin: 'All Skin Types', ing: 'Shea Butter • Vitamin E • Matte Pigments' },
-  { id: 3, name: 'Auraa Hydra Cream', price: 699, tag: 'TRENDING', image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&q=80', desc: 'Hyaluronic + Shea Butter', size: '50g', skin: 'Dry to Normal Skin', ing: 'Hyaluronic Acid • Shea Butter • Aloe Vera' },
-  { id: 4, name: 'Auraa Vitamin C Face Wash', price: 349, tag: 'NEW', image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600&q=80', desc: 'Brightening • Daily Glow', size: '100ml', skin: 'Oily to Normal Skin', ing: 'Vitamin C • Aloe • Niacinamide' },
-  { id: 5, name: 'Auraa SPF 50 Sunscreen', price: 599, tag: 'MUST HAVE', image: 'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=600&q=80', desc: 'No White Cast • Matte', size: '50ml', skin: 'All Skin Types', ing: 'SPF 50 PA+++ • Zinc • Vitamin E' },
-  { id: 6, name: 'Auraa Kajal - Jet Black', price: 299, tag: 'BESTSELLER', image: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&q=80', desc: 'Smudge Proof • 24H', size: '0.35g', skin: 'Sensitive Eyes Safe', ing: 'Castor Oil • Almond Oil • Black Pigment' },
+
+const products = [
+  {
+    id: 1,
+    name: 'Auraa Glow Serum',
+    price: 899,
+    tag: 'BESTSELLER',
+    image: '/images/auraa-glow-serum.webp',
+    desc: '24K Gold + Vitamin C',
+    size: '30ml',
+    skin: 'All Skin Types',
+    ing: 'Vitamin C • 24K Gold • Hyaluronic Acid'
+  },
+  {
+    id: 2,
+    name: 'Auraa Matte Lipstick',
+    price: 499,
+    tag: 'NEW',
+    image: '/images/auraa-matte-lipstick.webp',
+    desc: 'Velvet Matte • 12H Stay',
+    size: '4.2g',
+    skin: 'All Skin Types',
+    ing: 'Shea Butter • Vitamin E • Matte Pigments'
+  },
+  {
+    id: 3,
+    name: 'Auraa Hydra Cream',
+    price: 699,
+    tag: 'TRENDING',
+    image: '/images/auraa-hydra-cream.webp',
+    desc: 'Hyaluronic + Shea Butter',
+    size: '50g',
+    skin: 'Dry to Normal Skin',
+    ing: 'Hyaluronic Acid • Shea Butter • Aloe Vera'
+  },
+  {
+    id: 4,
+    name: 'Auraa Vitamin C Face Wash',
+    price: 349,
+    tag: 'NEW',
+    image: '/images/auraa-vitamin-c-face-wash.webp',
+    desc: 'Brightening • Daily Glow',
+    size: '100ml',
+    skin: 'Oily to Normal Skin',
+    ing: 'Vitamin C • Aloe • Niacinamide'
+  },
+  {
+    id: 5,
+    name: 'Auraa SPF 50 Sunscreen',
+    price: 599,
+    tag: 'MUST HAVE',
+    image: '/images/auraa-spf50-sunscreen.webp',
+    desc: 'No White Cast • Matte',
+    size: '50ml',
+    skin: 'All Skin Types',
+    ing: 'SPF 50 PA+++ • Zinc • Vitamin E'
+  },
+  {
+    id: 6,
+    name: 'Auraa Kajal - Jet Black',
+    price: 299,
+    tag: 'BESTSELLER',
+    image: '/images/auraa-kajal.webp',
+    desc: 'Smudge Proof • 24H',
+    size: '0.35g',
+    skin: 'Sensitive Eyes Safe',
+    ing: 'Castor Oil • Almond Oil • Black Pigment'
+  }
 ];
+
   const addToCart = (product) => {
     setCart(prev => {
       const found = prev.find(item => item.id === product.id)
